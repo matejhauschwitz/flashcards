@@ -2,33 +2,42 @@ name: Deploy React App
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
+    
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true 
 
     steps:
-    - name: 1. Stazeni kodu
-      uses: actions/checkout@v4
+      - name: 1. Checkout code
+        uses: actions/checkout@v4
 
-    - name: 2. Nastaveni Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+      - name: 2. Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-    - name: 3. Instalace
-      run: npm install
+      - name: 3. Install and Build
+        run: |
+          npm install
+          npm run build
 
-    - name: 4. Build
-      run: npm run build
+      - name: 4. Enable IPv6 (Klíčové pro školní server)
+        uses: fscarmen/warp-on-actions@v1.1
 
-    - name: 5. Deploy
-      uses: easingthemes/ssh-deploy@main
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        REMOTE_HOST: ${{ secrets.SERVER_HOST }}
-        REMOTE_USER: ${{ secrets.SSH_USER }}
-        SOURCE: "dist/"
-        TARGET: "/var/www/html/flashcards"
+      - name: 5. Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: 6. Deploy to Server (Native SCP)
+        run: |
+          # 1. Vytvoření složky na serveru, pokud náhodou ještě neexistuje
+          ssh -6 -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p /var/www/html/flashcards"
+          
+          # 2. Bezpečné překopírování celého obsahu složky dist/ na server
+          scp -6 -r -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no dist/* ${{ secrets.SSH_USER }}@[${{ secrets.SSH_HOST }}]:/var/www/html/flashcards/
