@@ -35,6 +35,8 @@ function App() {
   const [user, setUser] = useState(() => loadFromStorage("fc_user", null));
   // Dostupné balíčky načtené z /public/decks/index.json
   const [decks, setDecks] = useState([]);
+  // Vlastní balíčky nahrané uživatelem (z localStorage)
+  const [customDecks, setCustomDecks] = useState(() => loadFromStorage("fc_custom_decks", {}));
   // Aktuálně načtené karty vybraného balíčku
   const [cards, setCards] = useState([]);
   // Název vybraného balíčku (souboru)
@@ -53,6 +55,11 @@ function App() {
     else localStorage.removeItem("fc_user");
   }, [user]);
 
+  // Synchronizuj vlastní balíčky do localStorage
+  useEffect(() => {
+    localStorage.setItem("fc_custom_decks", JSON.stringify(customDecks));
+  }, [customDecks]);
+
   // Po startu aplikace načti seznam dostupných balíčků
   useEffect(() => {
     let isCancelled = false;
@@ -64,7 +71,7 @@ function App() {
       try {
         const response = await fetch("/decks/index.json");
         if (!response.ok) {
-          throw new Error(`Nepodařilo se načíst seznam balíčků (HTTP ${response.status}).`);
+          throw new Error(`Nepodařilo se načíst seznam balíčků (HTTP ${"$"} {response.status}).`);
         }
 
         const data = await response.json();
@@ -104,10 +111,19 @@ function App() {
     setCards([]);
   };
 
-  // Načti vybraný balíček z CSV
+  // Načti vybraný balíček z CSV (serverový) nebo z vlastních balíčků
   const handleSelectDeck = async (deckFileName) => {
     try {
       setDecksError("");
+
+      // Zkontroluj, jestli je to vlastní balíček
+      if (customDecks[deckFileName]) {
+        setCards(customDecks[deckFileName]);
+        setSelectedDeck(deckFileName);
+        setView("viewer");
+        return;
+      }
+
       const safeDeckName = String(deckFileName || "").trim();
       const hasAllowedFormat = /^[a-zA-Z0-9_-]+\.csv$/i.test(safeDeckName);
       const isKnownDeck = decks.includes(safeDeckName);
@@ -130,6 +146,37 @@ function App() {
     }
   };
 
+  // Nahrání CSV souboru uživatelem
+  const handleCsvUpload = (file) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const csvText = e.target.result;
+      const parsedCards = parseCsvDeck(csvText);
+
+      if (parsedCards.length === 0) {
+        setDecksError("Soubor neobsahuje žádné platné karty. Zkontrolujte formát (hlavička + otázka;odpověď).");
+        return;
+      }
+
+      const deckName = file.name;
+      setCustomDecks((prev) => ({ ...prev, [deckName]: parsedCards }));
+      setDecksError("");
+    };
+    reader.onerror = () => {
+      setDecksError("Nepodařilo se přečíst soubor.");
+    };
+    reader.readAsText(file);
+  };
+
+  // Smazání vlastního balíčku
+  const handleDeleteCustomDeck = (deckName) => {
+    setCustomDecks((prev) => {
+      const next = { ...prev };
+      delete next[deckName];
+      return next;
+    });
+  };
+
   // Přepnutí dark mode
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -138,7 +185,7 @@ function App() {
   // Nepřihlášený uživatel → zobrazíme Login
   if (!user) {
     return (
-      <div className={`app ${theme === "dark" ? "dark-mode" : ""}`}>
+      <div className={`app ${theme === "dark" ? "dark-mode" : ""}`}> 
         <Login onLogin={handleLogin} />
       </div>
     );
@@ -146,7 +193,7 @@ function App() {
 
   // Přihlášený uživatel → výpis balíčků / procvičování
   return (
-    <div className={`app ${theme === "dark" ? "dark-mode" : ""}`}>
+    <div className={`app ${theme === "dark" ? "dark-mode" : ""}`}> 
       {/* Horní lišta s pozdravem, motivem a odhlášením */}
       <header className="topbar">
         <span className="topbar-greeting">
@@ -164,9 +211,12 @@ function App() {
       {view === "list" ? (
         <DeckList
           decks={decks}
+          customDecks={customDecks}
           isLoading={isLoadingDecks}
           error={decksError}
           onSelectDeck={handleSelectDeck}
+          onCsvUpload={handleCsvUpload}
+          onDeleteCustomDeck={handleDeleteCustomDeck}
         />
       ) : (
         <FlashcardViewer
