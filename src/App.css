@@ -38,6 +38,12 @@ body {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .btn-small {
   background: none;
   border: 1px solid #ccc;
@@ -47,8 +53,14 @@ body {
   font-size: 0.85rem;
   transition: background 0.2s;
 }
+
 .btn-small:hover {
   background: #f5f5f5;
+}
+
+.theme-toggle {
+  font-size: 1rem;
+  line-height: 1;
 }
 
 /* ===== SPOLEČNÁ TLAČÍTKA ===== */
@@ -64,6 +76,7 @@ body {
   transition: background 0.2s, transform 0.1s;
   margin-top: 1rem;
 }
+
 .btn-primary:hover {
   background: #3a56d4;
   transform: translateY(-1px);
@@ -79,6 +92,7 @@ body {
   margin-top: 1rem;
   text-decoration: underline;
 }
+
 .btn-secondary:hover {
   color: #333;
 }
@@ -115,6 +129,7 @@ body {
   outline: none;
   transition: border-color 0.2s;
 }
+
 .login-card input:focus {
   border-color: #4361ee;
 }
@@ -133,14 +148,23 @@ body {
   margin-bottom: 1rem;
 }
 
+.deck-grid {
+  display: grid;
+  gap: 0.9rem;
+}
+
 .deck-card {
   background: #fff;
-  padding: 1.5rem;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 1.25rem 1.5rem;
   border-radius: 14px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
+
 .deck-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
@@ -161,6 +185,10 @@ body {
   margin-top: 0.8rem;
   color: #4361ee;
   font-weight: 600;
+}
+
+.deck-error {
+  color: #b91c1c;
 }
 
 /* ===== FLASHCARD VIEWER ===== */
@@ -221,6 +249,49 @@ body {
   box-shadow: 0 6px 24px rgba(67, 97, 238, 0.18);
 }
 
+/* ===== STATISTIKY PO DOKONČENÍ ===== */
+.session-stats {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.session-stats h3 {
+  margin-bottom: 0.75rem;
+}
+
+.session-stats p {
+  margin-bottom: 0.45rem;
+}
+
+.stats-grid {
+  margin-top: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem 0.75rem;
+}
+
+.progress-wrap {
+  margin-top: 0.8rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
 /* ===== CONFIDENCE INPUT ===== */
 .confidence-input {
   margin-top: 1.2rem;
@@ -271,4 +342,71 @@ body {
 .confidence-pts {
   font-size: 0.7rem;
   color: #aaa;
+}
+
+/* ===== DARK MODE ===== */
+.app.dark-mode {
+  color: #e5e7eb;
+}
+
+.app.dark-mode .topbar,
+.app.dark-mode .login-card,
+.app.dark-mode .deck-card,
+.app.dark-mode .card-front,
+.app.dark-mode .session-stats,
+.app.dark-mode .confidence-btn {
+  background: #1f2937;
+  color: #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.app.dark-mode .card-back {
+  background: linear-gradient(135deg, #273449, #1e293b);
+}
+
+.app.dark-mode .btn-small {
+  border-color: #4b5563;
+  color: #e5e7eb;
+}
+
+.app.dark-mode .btn-small:hover {
+  background: #374151;
+}
+
+.app.dark-mode .btn-secondary {
+  color: #cbd5e1;
+}
+
+.app.dark-mode .btn-secondary:hover {
+  color: #f9fafb;
+}
+
+.app.dark-mode .login-card input {
+  background: #111827;
+  color: #f9fafb;
+  border-color: #374151;
+}
+
+.app.dark-mode .deck-card p,
+.app.dark-mode .progress,
+.app.dark-mode .card-label,
+.app.dark-mode .confidence-label,
+.app.dark-mode .confidence-pts {
+  color: #cbd5e1;
+}
+
+.app.dark-mode .deck-cta {
+  color: #93c5fd;
+}
+
+.app.dark-mode .confidence-btn {
+  border-color: #4b5563;
+}
+
+.app.dark-mode .progress-bar {
+  background: #374151;
+}
+
+.app.dark-mode .deck-error {
+  color: #fca5a5;
 }

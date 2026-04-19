@@ -1,29 +1,47 @@
+// Vrátí hezký název balíčku ze jména souboru (bez .csv a s velkým počátečním písmenem)
+function formatDeckName(fileName) {
+  const nameWithoutExt = fileName.replace(/\.csv$/i, "");
+  const normalized = nameWithoutExt.replace(/[-_]+/g, " ");
+  return normalized
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 /**
  * Komponenta DeckList
- * – zobrazuje dostupné balíčky (v našem případě jeden).
- * – po kliknutí volá callback `onSelectDeck` z rodiče.
- * – přes props `cards` počítá statistiky.
+ * – zobrazuje dostupné balíčky načtené z index.json.
+ * – po kliknutí na balíček volá callback `onSelectDeck`.
  */
-function DeckList({ cards, onSelectDeck }) {
-  // Spočítáme průměrné skóre všech karet
-  const avg =
-    cards.length > 0
-      ? (cards.reduce((sum, c) => sum + c.score, 0) / cards.length).toFixed(1)
-      : 0;
-
-  // Kolik karet bylo alespoň jednou procvičeno
-  const reviewed = cards.filter((c) => c.lastReviewed).length;
-
+function DeckList({ decks, isLoading, error, onSelectDeck }) {
   return (
     <div className="deck-list">
-      <h2>Tvoje balíčky</h2>
+      <h2>Dostupné balíčky</h2>
 
-      <div className="deck-card" onClick={onSelectDeck}>
-        <h3>🇬🇧 Slovíčka AJ</h3>
-        <p>{cards.length} karet · {reviewed} procvičeno</p>
-        <p>Průměrné skóre: <strong>{avg}</strong> / 4</p>
-        <span className="deck-cta">Spustit →</span>
-      </div>
+      {isLoading && <p>Načítám balíčky…</p>}
+      {!isLoading && error && <p className="deck-error">⚠️ {error}</p>}
+
+      {!isLoading && !error && decks.length === 0 && (
+        <p>Zatím nejsou dostupné žádné balíčky.</p>
+      )}
+
+      {!isLoading && !error && decks.length > 0 && (
+        <div className="deck-grid">
+          {decks.map((deckFile) => (
+            <button
+              type="button"
+              key={deckFile}
+              className="deck-card"
+              onClick={() => onSelectDeck(deckFile)}
+            >
+              <h3>{formatDeckName(deckFile)}</h3>
+              <p>Soubor: {deckFile}</p>
+              <span className="deck-cta">Spustit →</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
