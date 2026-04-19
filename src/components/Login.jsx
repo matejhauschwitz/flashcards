@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FiBookOpen } from "react-icons/fi";
 
 /**
  * Komponenta Login
@@ -17,7 +18,10 @@ function Login({ onLogin }) {
 
   return (
     <div className="login-card">
-      <h1>📚 Flashcards</h1>
+      <h1 className="login-title">
+        <FiBookOpen aria-hidden="true" />
+        <span>Flashcards</span>
+      </h1>
       <p className="subtitle">Quizlet pro chudé</p>
 
       <form onSubmit={handleSubmit}>

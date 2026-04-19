@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FiMoon, FiSmile, FiSun } from "react-icons/fi";
 import Login from "./components/Login";
 import DeckList from "./components/DeckList";
 import FlashcardViewer from "./components/FlashcardViewer";
@@ -148,10 +149,13 @@ function App() {
     <div className={`app ${theme === "dark" ? "dark-mode" : ""}`}>
       {/* Horní lišta s pozdravem, motivem a odhlášením */}
       <header className="topbar">
-        <span>👋 Ahoj, <strong>{user}</strong></span>
+        <span className="topbar-greeting">
+          <FiSmile aria-hidden="true" />
+          <span>Ahoj, <strong>{user}</strong></span>
+        </span>
         <div className="topbar-actions">
           <button className="btn-small theme-toggle" onClick={toggleTheme} aria-label="Přepnout motiv">
-            {theme === "dark" ? "☀️" : "🌙"}
+            {theme === "dark" ? <FiSun aria-hidden="true" /> : <FiMoon aria-hidden="true" />}
           </button>
           <button className="btn-small" onClick={handleLogout}>Odhlásit</button>
         </div>

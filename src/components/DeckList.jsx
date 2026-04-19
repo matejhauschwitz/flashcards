@@ -1,3 +1,5 @@
+import { FiAlertTriangle, FiArrowRight } from "react-icons/fi";
+
 // Vrátí hezký název balíčku ze jména souboru (bez .csv a s velkým počátečním písmenem)
 function formatDeckName(fileName) {
   const nameWithoutExt = fileName.replace(/\.csv$/i, "");
@@ -20,7 +22,12 @@ function DeckList({ decks, isLoading, error, onSelectDeck }) {
       <h2>Dostupné balíčky</h2>
 
       {isLoading && <p>Načítám balíčky…</p>}
-      {!isLoading && error && <p className="deck-error">⚠️ {error}</p>}
+      {!isLoading && error && (
+        <p className="deck-error">
+          <FiAlertTriangle aria-hidden="true" />
+          <span>{error}</span>
+        </p>
+      )}
 
       {!isLoading && !error && decks.length === 0 && (
         <p>Zatím nejsou dostupné žádné balíčky.</p>
@@ -37,7 +44,10 @@ function DeckList({ decks, isLoading, error, onSelectDeck }) {
             >
               <h3>{formatDeckName(deckFile)}</h3>
               <p>Soubor: {deckFile}</p>
-              <span className="deck-cta">Spustit →</span>
+              <span className="deck-cta">
+                <span>Spustit</span>
+                <FiArrowRight aria-hidden="true" />
+              </span>
             </button>
           ))}
         </div>
