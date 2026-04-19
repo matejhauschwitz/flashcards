@@ -4,45 +4,89 @@ import DeckList from "./components/DeckList";
 import FlashcardViewer from "./components/FlashcardViewer";
 import "./App.css";
 
-// Výchozí balíček karet – použije se, když je localStorage prázdný
-const DEFAULT_CARDS = [
-  { id: 1, question: "Hello",      answer: "Ahoj",       lastReviewed: null, score: 0 },
-  { id: 2, question: "Goodbye",    answer: "Nashledanou", lastReviewed: null, score: 0 },
-  { id: 3, question: "Thank you",  answer: "Děkuji",     lastReviewed: null, score: 0 },
-  { id: 4, question: "Please",     answer: "Prosím",     lastReviewed: null, score: 0 },
-  { id: 5, question: "Yes",        answer: "Ano",        lastReviewed: null, score: 0 },
-  { id: 6, question: "No",         answer: "Ne",         lastReviewed: null, score: 0 },
-  { id: 7, question: "Dog",        answer: "Pes",        lastReviewed: null, score: 0 },
-  { id: 8, question: "Cat",        answer: "Kočka",      lastReviewed: null, score: 0 },
-  { id: 9, question: "Water",      answer: "Voda",       lastReviewed: null, score: 0 },
-  { id: 10, question: "Friend",    answer: "Přítel",     lastReviewed: null, score: 0 },
-];
-
 // Pomocná funkce – načti data z localStorage nebo vrať fallback
 function loadFromStorage(key, fallback) {
   const raw = localStorage.getItem(key);
   return raw ? JSON.parse(raw) : fallback;
 }
 
+// Převede CSV text na pole karet { id, question, answer }
+function parseCsvDeck(csvText) {
+  const rows = csvText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return rows.slice(1).map((row, index) => {
+    const [question = "", ...answerParts] = row.split(";");
+    return {
+      id: index + 1,
+      question: question.trim(),
+      answer: answerParts.join(";").trim(),
+    };
+  });
+}
+
 function App() {
   // Stav přihlášeného uživatele (null = nepřihlášen)
   const [user, setUser] = useState(() => loadFromStorage("fc_user", null));
-
-  // Pole karet uložené v localStorage
-  const [cards, setCards] = useState(() => loadFromStorage("fc_cards", DEFAULT_CARDS));
-
+  // Dostupné balíčky načtené z /public/decks/index.json
+  const [decks, setDecks] = useState([]);
+  // Aktuálně načtené karty vybraného balíčku
+  const [cards, setCards] = useState([]);
+  // Název vybraného balíčku (souboru)
+  const [selectedDeck, setSelectedDeck] = useState(null);
   // Který "pohled" je aktivní: "list" nebo "viewer"
   const [view, setView] = useState("list");
+  // Jednoduchý stav načítání a případná chyba
+  const [isLoadingDecks, setIsLoadingDecks] = useState(true);
+  const [decksError, setDecksError] = useState("");
+  // Tmavý/světlý režim uložený v localStorage
+  const [theme, setTheme] = useState(() => localStorage.getItem("fc_theme") || "light");
 
-  // Při změně uživatele / karet vždy synchronizuj localStorage
+  // Při změně uživatele synchronizuj localStorage
   useEffect(() => {
     if (user) localStorage.setItem("fc_user", JSON.stringify(user));
     else localStorage.removeItem("fc_user");
   }, [user]);
 
+  // Po startu aplikace načti seznam dostupných balíčků
   useEffect(() => {
-    localStorage.setItem("fc_cards", JSON.stringify(cards));
-  }, [cards]);
+    let isCancelled = false;
+
+    const loadDeckIndex = async () => {
+      setIsLoadingDecks(true);
+      setDecksError("");
+
+      try {
+        const response = await fetch("/decks/index.json");
+        if (!response.ok) throw new Error("Nepodařilo se načíst seznam balíčků.");
+
+        const data = await response.json();
+        if (!Array.isArray(data)) throw new Error("Neplatný formát index.json.");
+
+        if (!isCancelled) setDecks(data);
+      } catch (error) {
+        if (!isCancelled) {
+          setDecks([]);
+          setDecksError(error.message);
+        }
+      } finally {
+        if (!isCancelled) setIsLoadingDecks(false);
+      }
+    };
+
+    loadDeckIndex();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  // Ulož preferenci motivu
+  useEffect(() => {
+    localStorage.setItem("fc_theme", theme);
+  }, [theme]);
 
   // Callback pro přihlášení – voláno z komponenty Login
   const handleLogin = (name) => setUser(name);
@@ -51,45 +95,71 @@ function App() {
   const handleLogout = () => {
     setUser(null);
     setView("list");
+    setSelectedDeck(null);
+    setCards([]);
   };
 
-  // Callback pro aktualizaci jedné karty (po ohodnocení)
-  const handleUpdateCard = (updatedCard) => {
-    setCards((prev) =>
-      prev.map((c) => (c.id === updatedCard.id ? updatedCard : c))
-    );
+  // Načti vybraný balíček z CSV
+  const handleSelectDeck = async (deckFileName) => {
+    try {
+      const response = await fetch(`/decks/${deckFileName}`);
+      if (!response.ok) throw new Error("Nepodařilo se načíst vybraný balíček.");
+
+      const csvText = await response.text();
+      const parsedCards = parseCsvDeck(csvText);
+
+      setCards(parsedCards);
+      setSelectedDeck(deckFileName);
+      setView("viewer");
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
-  // --- Renderování ---
+  // Přepnutí dark mode
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
 
   // Nepřihlášený uživatel → zobrazíme Login
   if (!user) {
     return (
-      <div className="app">
+      <div className={`app ${theme === "dark" ? "dark-mode" : ""}`}>
         <Login onLogin={handleLogin} />
       </div>
     );
   }
 
-  // Přihlášený uživatel → Dashboard
+  // Přihlášený uživatel → výpis balíčků / procvičování
   return (
-    <div className="app">
-      {/* Horní lišta s pozdravem a odhlášením */}
+    <div className={`app ${theme === "dark" ? "dark-mode" : ""}`}>
+      {/* Horní lišta s pozdravem, motivem a odhlášením */}
       <header className="topbar">
         <span>👋 Ahoj, <strong>{user}</strong></span>
-        <button className="btn-small" onClick={handleLogout}>Odhlásit</button>
+        <div className="topbar-actions">
+          <button className="btn-small theme-toggle" onClick={toggleTheme} aria-label="Přepnout motiv">
+            {theme === "dark" ? "☀️" : "🌙"}
+          </button>
+          <button className="btn-small" onClick={handleLogout}>Odhlásit</button>
+        </div>
       </header>
 
       {view === "list" ? (
         <DeckList
-          cards={cards}
-          onSelectDeck={() => setView("viewer")}
+          decks={decks}
+          isLoading={isLoadingDecks}
+          error={decksError}
+          onSelectDeck={handleSelectDeck}
         />
       ) : (
         <FlashcardViewer
           cards={cards}
-          onUpdateCard={handleUpdateCard}
-          onBack={() => setView("list")}
+          deckFileName={selectedDeck}
+          onBack={() => {
+            setView("list");
+            setSelectedDeck(null);
+            setCards([]);
+          }}
         />
       )}
     </div>
