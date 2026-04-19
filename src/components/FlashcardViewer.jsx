@@ -1,18 +1,25 @@
 import { useState } from "react";
 import ConfidenceInput from "./ConfidenceInput";
 
-// Spočítá jednoduché statistiky z aktuálního sezení
+// Mapování hodnot na barvy a popisky
+const RATING_META = {
+  1: { label: "Neumím", cssClass: "rating-wrong" },
+  2: { label: "Téměř",  cssClass: "rating-almost" },
+  3: { label: "Umím",   cssClass: "rating-correct" },
+};
+
+// Spočítá statistiky z aktuálního sezení
 function computeSessionStats(ratings, totalCards) {
-  const counts = { 1: 0, 2: 0, 3: 0, 4: 0 };
-  ratings.forEach((rating) => {
-    if (counts[rating] !== undefined) counts[rating] += 1;
+  const counts = { 1: 0, 2: 0, 3: 0 };
+  ratings.forEach((r) => {
+    if (counts[r] !== undefined) counts[r] += 1;
   });
 
   const average = ratings.length
-    ? (ratings.reduce((sum, value) => sum + value, 0) / ratings.length).toFixed(2)
+    ? (ratings.reduce((sum, v) => sum + v, 0) / ratings.length).toFixed(2)
     : "0.00";
 
-  const successCount = counts[3] + counts[4];
+  const successCount = counts[3];
   const successPercent = totalCards > 0 ? Math.round((successCount / totalCards) * 100) : 0;
 
   return { counts, average, successPercent, successCount };
@@ -20,65 +27,60 @@ function computeSessionStats(ratings, totalCards) {
 
 /**
  * Komponenta FlashcardViewer
- * – prochází kartičky jednu po druhé.
- * – po dokončení zobrazí statistiky pouze z aktuálního průchodu.
+ * – zobrazuje otázku i odpověď najednou.
+ * – uživatel hodnotí 3 tlačítky: Neumím / Téměř / Umím.
+ * – po dokončení zobrazí statistiky + přehled všech otázek.
  */
 function FlashcardViewer({ cards, deckFileName, onBack }) {
-  // Index aktuální karty v poli
   const [index, setIndex] = useState(0);
-  // Je karta otočená na odpověď?
-  const [flipped, setFlipped] = useState(false);
-  // Hodnocení z aktuálního sezení
+  // Hodnocení z aktuálního sezení – pole objektů { cardIndex, value }
   const [sessionRatings, setSessionRatings] = useState([]);
-  // Příznak, že jsme prošli celý balíček
+  const [showAnswer, setShowAnswer] = useState(false);
   const finished = index >= cards.length;
 
-  // Callback volaný z ConfidenceInput po kliknutí na hodnocení
   const handleRate = (value) => {
-    setSessionRatings((prev) => [...prev, value]);
-    setFlipped(false);
+    setSessionRatings((prev) => [...prev, { cardIndex: index, value }]);
+    setShowAnswer(false);
     setIndex((prev) => prev + 1);
   };
 
-  // Když balíček neobsahuje žádné karty
+  // Prázdný balíček
   if (cards.length === 0) {
     return (
       <div className="viewer">
-        <h2>📭 Prázdný balíček</h2>
+        <h2>Prázdný balíček</h2>
         <p>Ve vybraném balíčku nejsou žádné kartičky.</p>
         <button className="btn-secondary" onClick={onBack}>
-          ← Zpět na balíčky
+          Zpět na balíčky
         </button>
       </div>
     );
   }
 
-  // Všechny karty projity – zobrazíme souhrn
+  // Hotovo – statistiky + přehled otázek
   if (finished) {
-    const stats = computeSessionStats(sessionRatings, cards.length);
+    const ratingValues = sessionRatings.map((r) => r.value);
+    const stats = computeSessionStats(ratingValues, cards.length);
 
     return (
       <div className="viewer">
-        <h2>🎉 Hotovo!</h2>
+        <h2>Hotovo!</h2>
         <p>
-          Balíček <strong>{deckFileName}</strong> je hotový.
+          Balíček <strong>{deckFileName?.replace(/\.csv$/i, "")}</strong> je dokončený.
         </p>
 
         <div className="session-stats">
-          <h3>Statistiky aktuálního sezení</h3>
-          <p>Celkový počet karet: <strong>{cards.length}</strong></p>
-          <p>Průměrné skóre: <strong>{stats.average}</strong> / 4</p>
-
+          <h3>Statistiky</h3>
           <div className="stats-grid">
-            <span>Znovu (1): <strong>{stats.counts[1]}</strong></span>
-            <span>Těžké (2): <strong>{stats.counts[2]}</strong></span>
-            <span>Dobré (3): <strong>{stats.counts[3]}</strong></span>
-            <span>Snadné (4): <strong>{stats.counts[4]}</strong></span>
+            <span>Umím: <strong>{stats.counts[3]}</strong></span>
+            <span>Téměř: <strong>{stats.counts[2]}</strong></span>
+            <span>Neumím: <strong>{stats.counts[1]}</strong></span>
+            <span>Celkem: <strong>{cards.length}</strong></span>
           </div>
 
           <div className="progress-wrap">
             <p>
-              Úspěšnost (3+4): <strong>{stats.successCount}</strong> / {cards.length} ({stats.successPercent}%)
+              Úspěšnost: <strong>{stats.successCount}</strong> / {cards.length} ({stats.successPercent} %)
             </p>
             <div className="progress-bar">
               <div className="progress-fill" style={{ width: `${stats.successPercent}%` }} />
@@ -86,18 +88,36 @@ function FlashcardViewer({ cards, deckFileName, onBack }) {
           </div>
         </div>
 
+        {/* Přehled všech otázek */}
+        <div className="review-list">
+          <h3>Přehled otázek</h3>
+          {sessionRatings.map((r, i) => {
+            const card = cards[r.cardIndex];
+            const meta = RATING_META[r.value];
+            return (
+              <div key={i} className={`review-item ${meta.cssClass}`}> 
+                <div className="review-content">
+                  <p className="review-question">{card.question}</p>
+                  <p className="review-answer">{card.answer}</p>
+                </div>
+                <span className="review-badge">{meta.label}</span>
+              </div>
+            );
+          })}
+        </div>
+
         <button
-          className="btn-primary"
+          className="btn-restart"
           onClick={() => {
             setIndex(0);
-            setFlipped(false);
+            setShowAnswer(false);
             setSessionRatings([]);
           }}
         >
           Znovu od začátku
         </button>
         <button className="btn-secondary" onClick={onBack}>
-          ← Zpět na balíčky
+          Zpět na balíčky
         </button>
       </div>
     );
@@ -109,35 +129,34 @@ function FlashcardViewer({ cards, deckFileName, onBack }) {
     <div className="viewer">
       {/* Průběh */}
       <p className="progress">
-        Karta {index + 1} / {cards.length}
+        {index + 1} / {cards.length}
       </p>
 
-      {/* Samotná kartička */}
-      <div className={`flashcard ${flipped ? "flipped" : ""}`}>
-        {!flipped ? (
-          <div className="card-face card-front">
-            <span className="card-label">Otázka</span>
-            <h2>{card.question}</h2>
-          </div>
-        ) : (
-          <div className="card-face card-back">
-            <span className="card-label">Odpověď</span>
-            <h2>{card.answer}</h2>
-          </div>
-        )}
+      {/* Kartička – otázka vždy viditelná */}
+      <div className={`flashcard ${showAnswer ? "flipped" : ""}`}> 
+        <div className="card-face card-front">
+          <span className="card-label">Otázka</span>
+          <h2>{card.question}</h2>
+        </div>
       </div>
 
-      {/* Tlačítko Otočit / hodnocení */}
-      {!flipped ? (
-        <button className="btn-primary" onClick={() => setFlipped(true)}>
-          Otočit 🔄
+      {/* Odpověď + hodnocení */}
+      {!showAnswer ? (
+        <button className="btn-reveal" onClick={() => setShowAnswer(true)}>
+          Zobrazit odpověď
         </button>
       ) : (
-        <ConfidenceInput onRate={handleRate} />
+        <>
+          <div className="answer-reveal">
+            <span className="card-label">Odpověď</span>
+            <p className="answer-text">{card.answer}</p>
+          </div>
+          <ConfidenceInput onRate={handleRate} />
+        </>
       )}
 
-      <button className="btn-secondary" onClick={onBack}>
-        ← Zpět na balíčky
+      <button className="btn-secondary" onClick={onBack}> 
+        Zpět na balíčky
       </button>
     </div>
   );
