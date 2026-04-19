@@ -1,25 +1,20 @@
 /*
- * Komponenta ConfidenceInput (custom formulářový input)
+ * Komponenta ConfidenceInput
  *
- * NEPOUŽÍVÁ klasický <input> – místo toho zobrazuje 4 tlačítka,
- * z nichž každé reprezentuje jinou úroveň sebejistoty.
- *
- * Po kliknutí zavolá callback `onRate(hodnota)` předaný z rodiče
- * (FlashcardViewer), čímž se data posílají směrem nahoru.
+ * Zobrazuje 3 tlačítka hodnocení: Neumím / Téměř / Umím.
+ * Po kliknutí zavolá callback `onRate(hodnota)`. 
  */
 
-// Definice možností hodnocení
 const OPTIONS = [
-  { value: 1, label: "Znovu",  emoji: "🔴" },
-  { value: 2, label: "Těžké",  emoji: "🟠" },
-  { value: 3, label: "Dobré",  emoji: "🟢" },
-  { value: 4, label: "Snadné", emoji: "🟣" },
+  { value: 1, label: "Neumím",  emoji: "❌" },
+  { value: 2, label: "Téměř",   emoji: "🟡" },
+  { value: 3, label: "Umím",    emoji: "✅" },
 ];
 
 function ConfidenceInput({ onRate }) {
   return (
     <div className="confidence-input">
-      <p className="confidence-label">Jak jsi si vedl?</p>
+      <p className="confidence-label">Jak jsi to věděl/a?</p>
       <div className="confidence-buttons">
         {OPTIONS.map((opt) => (
           <button
@@ -29,7 +24,6 @@ function ConfidenceInput({ onRate }) {
           >
             <span className="confidence-emoji">{opt.emoji}</span>
             <span>{opt.label}</span>
-            <span className="confidence-pts">{opt.value} b.</span>
           </button>
         ))}
       </div>
