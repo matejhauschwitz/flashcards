@@ -36,6 +36,6 @@ jobs:
 
       - name: 6. Deploy to Server (Native SCP)
         run: |
-          ssh -6 -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p /var/www/html/flashcards"
+          ssh -6 -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o IdentitiesOnly=yes debian@${{ secrets.SERVER_HOST }} "mkdir -p ~/flashcards"
           
-          scp -6 -r -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no dist/* ${{ secrets.SSH_USER }}@[${{ secrets.SERVER_HOST }}]:/var/www/html/flashcards/
+          scp -6 -r -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o IdentitiesOnly=yes dist/* debian@[${{ secrets.SERVER_HOST }}]:~/flashcards/
