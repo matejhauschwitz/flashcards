@@ -1,0 +1,34 @@
+name: Deploy React App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 1. Stazeni kodu
+      uses: actions/checkout@v4
+
+    - name: 2. Nastaveni Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: 3. Instalace
+      run: npm install
+
+    - name: 4. Build
+      run: npm run build
+
+    - name: 5. Deploy
+      uses: easingthemes/ssh-deploy@main
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        REMOTE_HOST: ${{ secrets.SSH_HOST }}
+        REMOTE_USER: ${{ secrets.SSH_USER }}
+        SOURCE: "dist/"
+        TARGET: "/var/www/html/flashcards"
