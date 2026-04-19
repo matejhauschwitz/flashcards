@@ -17,6 +17,8 @@ function parseCsvDeck(csvText) {
     .map((line) => line.trim())
     .filter(Boolean);
 
+  if (rows.length <= 1) return [];
+
   return rows.slice(1).map((row, index) => {
     const [question = "", ...answerParts] = row.split(";");
     return {
@@ -60,7 +62,9 @@ function App() {
 
       try {
         const response = await fetch("/decks/index.json");
-        if (!response.ok) throw new Error("Nepodařilo se načíst seznam balíčků.");
+        if (!response.ok) {
+          throw new Error(`Nepodařilo se načíst seznam balíčků (HTTP ${response.status}).`);
+        }
 
         const data = await response.json();
         if (!Array.isArray(data)) throw new Error("Neplatný formát index.json.");
@@ -102,17 +106,26 @@ function App() {
   // Načti vybraný balíček z CSV
   const handleSelectDeck = async (deckFileName) => {
     try {
-      const response = await fetch(`/decks/${deckFileName}`);
+      setDecksError("");
+      const safeDeckName = String(deckFileName || "").trim();
+      const hasAllowedFormat = /^[a-zA-Z0-9_-]+\.csv$/i.test(safeDeckName);
+      const isKnownDeck = decks.includes(safeDeckName);
+
+      if (!hasAllowedFormat || !isKnownDeck) {
+        throw new Error("Neplatný název balíčku.");
+      }
+
+      const response = await fetch(`/decks/${safeDeckName}`);
       if (!response.ok) throw new Error("Nepodařilo se načíst vybraný balíček.");
 
       const csvText = await response.text();
       const parsedCards = parseCsvDeck(csvText);
 
       setCards(parsedCards);
-      setSelectedDeck(deckFileName);
+      setSelectedDeck(safeDeckName);
       setView("viewer");
     } catch (error) {
-      alert(error.message);
+      setDecksError(error.message);
     }
   };
 

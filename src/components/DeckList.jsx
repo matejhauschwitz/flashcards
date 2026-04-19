@@ -2,7 +2,11 @@
 function formatDeckName(fileName) {
   const nameWithoutExt = fileName.replace(/\.csv$/i, "");
   const normalized = nameWithoutExt.replace(/[-_]+/g, " ");
-  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  return normalized
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 /**
