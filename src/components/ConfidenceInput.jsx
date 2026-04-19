@@ -1,3 +1,5 @@
+import { FiCheckCircle, FiMinusCircle, FiXCircle } from "react-icons/fi";
+
 /*
  * Komponenta ConfidenceInput
  *
@@ -6,9 +8,9 @@
  */
 
 const OPTIONS = [
-  { value: 1, label: "Neumím",  emoji: "❌" },
-  { value: 2, label: "Téměř",   emoji: "🟡" },
-  { value: 3, label: "Umím",    emoji: "✅" },
+  { value: 1, label: "Neumím", icon: FiXCircle },
+  { value: 2, label: "Téměř", icon: FiMinusCircle },
+  { value: 3, label: "Umím", icon: FiCheckCircle },
 ];
 
 function ConfidenceInput({ onRate }) {
@@ -16,16 +18,21 @@ function ConfidenceInput({ onRate }) {
     <div className="confidence-input">
       <p className="confidence-label">Jak jsi to věděl/a?</p>
       <div className="confidence-buttons">
-        {OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            className={`confidence-btn confidence-${opt.value}`}
-            onClick={() => onRate(opt.value)}
-          >
-            <span className="confidence-emoji">{opt.emoji}</span>
-            <span>{opt.label}</span>
-          </button>
-        ))}
+        {OPTIONS.map((opt) => {
+          const Icon = opt.icon;
+          return (
+            <button
+              key={opt.value}
+              className={`confidence-btn confidence-${opt.value}`}
+              onClick={() => onRate(opt.value)}
+            >
+              <span className="confidence-icon">
+                <Icon aria-hidden="true" />
+              </span>
+              <span>{opt.label}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

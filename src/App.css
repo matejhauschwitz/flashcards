@@ -94,6 +94,12 @@ body {
   color: var(--text-primary);
 }
 
+.topbar-greeting {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 .topbar-actions {
   display: flex;
   align-items: center;
@@ -121,6 +127,10 @@ body {
   font-size: 1.1rem;
   line-height: 1;
   padding: 0.4rem 0.55rem;
+}
+
+.theme-toggle svg {
+  display: block;
 }
 
 /* ===== SPOLEČNÁ TLAČÍTKA ===== */
@@ -238,6 +248,12 @@ body {
   color: var(--text-primary);
 }
 
+.login-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .login-card .subtitle {
   color: var(--text-muted);
   margin-bottom: 2rem;
@@ -319,7 +335,9 @@ dek-card h3 {
 }
 
 .deck-cta {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   margin-top: 0.9rem;
   color: var(--accent);
   font-weight: 600;
@@ -327,6 +345,9 @@ dek-card h3 {
 }
 
 .deck-error {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   color: #ef4444;
   font-weight: 500;
 }
@@ -626,8 +647,13 @@ dek-card h3 {
 .app.dark-mode .confidence-2:hover { border-color: #f97316; background: #431a04; }
 .app.dark-mode .confidence-3:hover { border-color: #22c55e; background: #0f2e1a; }
 
-.confidence-emoji {
+.confidence-icon {
+  display: inline-flex;
   font-size: 1.3rem;
+}
+
+.confidence-icon svg {
+  display: block;
 }
 
 /* ===== RESPONZIVITA ===== */
