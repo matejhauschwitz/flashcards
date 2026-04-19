@@ -69,7 +69,8 @@ body {
   flex-direction: column;
   align-items: center;
   background: var(--bg-body);
-  transition: background 0.3s ease;
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ===== HORNÍ LIŠTA ===== */
@@ -84,14 +85,16 @@ body {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border);
-  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+  color: var(--text-primary);
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s, color 0.3s;
 }
 
-topbar span {
+.topbar span {
   font-size: 0.95rem;
+  color: var(--text-primary);
 }
 
-topbar-actions {
+.topbar-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -172,13 +175,15 @@ topbar-actions {
   margin-top: 12vh;
   width: 100%;
   max-width: 400px;
-  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+  color: var(--text-primary);
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s, color 0.3s;
 }
 
 .login-card h1 {
   font-size: 2.2rem;
   margin-bottom: 0.3rem;
   letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
 .login-card .subtitle {
@@ -217,18 +222,19 @@ topbar-actions {
   text-align: center;
 }
 
-dek-list h2 {
+.deck-list h2 {
   margin-bottom: 1.25rem;
   font-size: 1.4rem;
   letter-spacing: -0.01em;
+  color: var(--text-primary);
 }
 
-deck-grid {
+.deck-grid {
   display: grid;
   gap: 1rem;
 }
 
-deck-card {
+.deck-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   width: 100%;
@@ -239,27 +245,28 @@ deck-card {
   cursor: pointer;
   font-family: inherit;
   color: var(--text-primary);
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background 0.3s;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background 0.3s, color 0.3s;
 }
 
-deck-card:hover {
+.deck-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
   border-color: var(--accent);
 }
 
-deck-card h3 {
+.deck-card h3 {
   font-size: 1.25rem;
   margin-bottom: 0.35rem;
+  color: var(--text-primary);
 }
 
-deck-card p {
+.deck-card p {
   color: var(--text-secondary);
   font-size: 0.88rem;
   margin-top: 0.15rem;
 }
 
-deck-cta {
+.deck-cta {
   display: inline-block;
   margin-top: 0.9rem;
   color: var(--accent);
@@ -267,7 +274,7 @@ deck-cta {
   font-size: 0.95rem;
 }
 
-deck-error {
+.deck-error {
   color: #ef4444;
   font-weight: 500;
 }
@@ -313,6 +320,7 @@ deck-error {
 .card-face h2 {
   font-size: 1.8rem;
   letter-spacing: -0.01em;
+  color: var(--text-primary);
 }
 
 .card-label {
@@ -351,7 +359,8 @@ deck-error {
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border);
   text-align: left;
-  transition: background 0.3s, border-color 0.3s;
+  color: var(--text-primary);
+  transition: background 0.3s, border-color 0.3s, color 0.3s;
 }
 
 .session-stats h3 {
@@ -441,7 +450,7 @@ deck-error {
   font-family: inherit;
   color: var(--text-primary);
   min-width: 78px;
-  transition: transform 0.15s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  transition: transform 0.15s, border-color 0.2s, background 0.2s, box-shadow 0.2s, color 0.3s;
 }
 
 .confidence-btn:hover {
