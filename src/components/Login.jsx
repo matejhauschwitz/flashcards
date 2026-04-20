@@ -1,26 +1,19 @@
 import { useState } from "react";
 import { FiBookOpen } from "react-icons/fi";
 
-/**
- * Komponenta Login
- * – jednoduchý formulář pro zadání jména.
- * – po odeslání volá callback `onLogin` z rodiče (App).
- */
 function Login({ onLogin }) {
   const [name, setName] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const trimmed = name.trim();
-    if (!trimmed) return; // prázdné jméno nepustíme
+    if (!trimmed) return;
     onLogin(trimmed);
   };
 
   return (
     <div className="login-card">
       <h1 className="login-title">
-        <FiBookOpen aria-hidden="true" />
-        <span>Flashcards</span>
       </h1>
 
       <form onSubmit={handleSubmit}>

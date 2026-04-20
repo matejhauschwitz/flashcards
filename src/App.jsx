@@ -5,13 +5,11 @@ import DeckList from "./components/DeckList";
 import FlashcardViewer from "./components/FlashcardViewer";
 import "./App.css";
 
-// Pomocná funkce – načti data z localStorage nebo vrať fallback
 function loadFromStorage(key, fallback) {
   const raw = localStorage.getItem(key);
   return raw ? JSON.parse(raw) : fallback;
 }
 
-// Převede CSV text na pole karet { id, question, answer }
 function parseCsvDeck(csvText) {
   const rows = csvText
     .split("\n")
@@ -49,18 +47,15 @@ function App() {
   // Tmavý/světlý režim uložený v localStorage
   const [theme, setTheme] = useState(() => localStorage.getItem("fc_theme") || "light");
 
-  // Při změně uživatele synchronizuj localStorage
   useEffect(() => {
     if (user) localStorage.setItem("fc_user", JSON.stringify(user));
     else localStorage.removeItem("fc_user");
   }, [user]);
 
-  // Synchronizuj vlastní balíčky do localStorage
   useEffect(() => {
     localStorage.setItem("fc_custom_decks", JSON.stringify(customDecks));
   }, [customDecks]);
 
-  // Po startu aplikace načti seznam dostupných balíčků
   useEffect(() => {
     let isCancelled = false;
 
@@ -95,15 +90,12 @@ function App() {
     };
   }, []);
 
-  // Ulož preferenci motivu
   useEffect(() => {
     localStorage.setItem("fc_theme", theme);
   }, [theme]);
 
-  // Callback pro přihlášení – voláno z komponenty Login
   const handleLogin = (name) => setUser(name);
 
-  // Callback pro odhlášení
   const handleLogout = () => {
     setUser(null);
     setView("list");
@@ -111,12 +103,10 @@ function App() {
     setCards([]);
   };  
 
-  // Načti vybraný balíček z CSV (serverový) nebo z vlastních balíčků
   const handleSelectDeck = async (deckFileName) => {
     try {
       setDecksError("");
 
-      // Zkontroluj, jestli je to vlastní balíček
       if (customDecks[deckFileName]) {
         setCards(customDecks[deckFileName]);
         setSelectedDeck(deckFileName);
@@ -146,7 +136,6 @@ function App() {
     }
   };
 
-  // Nahrání CSV souboru uživatelem
   const handleCsvUpload = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -168,7 +157,6 @@ function App() {
     reader.readAsText(file);
   };
 
-  // Smazání vlastního balíčku
   const handleDeleteCustomDeck = (deckName) => {
     setCustomDecks((prev) => {
       const next = { ...prev };
@@ -177,12 +165,10 @@ function App() {
     });
   };
 
-  // Přepnutí dark mode
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
-  // Nepřihlášený uživatel → zobrazíme Login
   if (!user) {
     return (
       <div className={"app " + (theme === "dark" ? "dark-mode" : "")}> 
@@ -191,10 +177,9 @@ function App() {
     );
   }
 
-  // Přihlášený uživatel → výpis balíčků / procvičování 
   return (
     <div className={"app " + (theme === "dark" ? "dark-mode" : "")}> 
-      {/* Horní lišta s pozdravem, motivem a odhlášením */}
+      {/* Horní lišta */}
       <header className="topbar">
         <span className="topbar-greeting">
           <span><strong>{user}</strong></span>

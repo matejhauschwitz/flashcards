@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { FiAlertTriangle, FiArrowRight, FiUpload, FiTrash2 } from "react-icons/fi";
 
-// Vrátí hezký název balíčku ze jména souboru (bez .csv a s velkým počátečním písmenem)
 function formatDeckName(fileName) {
   const nameWithoutExt = fileName.replace(/\.csv$/i, "");
   const normalized = nameWithoutExt.replace(/[-_]+/g, " ");
@@ -12,12 +11,6 @@ function formatDeckName(fileName) {
     .join(" ");
 }
 
-/**
- * Komponenta DeckList
- * – zobrazuje dostupné balíčky načtené z index.json.
- * – umožňuje nahrát vlastní CSV soubor.
- * – po kliknutí na balíček volá callback `onSelectDeck`.
- */
 function DeckList({ decks, customDecks = {}, isLoading, error, onSelectDeck, onCsvUpload, onDeleteCustomDeck }) {
   const fileInputRef = useRef(null);
 
@@ -25,7 +18,6 @@ function DeckList({ decks, customDecks = {}, isLoading, error, onSelectDeck, onC
     const file = e.target.files[0];
     if (file) {
       onCsvUpload(file);
-      // Reset input, aby šlo nahrát stejný soubor znovu
       e.target.value = "";
     }
   };
@@ -68,7 +60,7 @@ function DeckList({ decks, customDecks = {}, isLoading, error, onSelectDeck, onC
         </div>
       )}
 
-      {/* Vlastní balíčky nahrané uživatelem */}
+      {/* Vlastní balíčky */}
       {customDeckNames.length > 0 && (
         <>
           <h2 style={{ marginTop: "2rem" }}>Vlastní balíčky</h2>

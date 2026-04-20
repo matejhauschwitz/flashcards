@@ -1,12 +1,5 @@
 import { FiCheckCircle, FiMinusCircle, FiXCircle } from "react-icons/fi";
 
-/*
- * Komponenta ConfidenceInput
- *
- * Zobrazuje 3 tlačítka hodnocení: Neumím / Téměř / Umím.
- * Po kliknutí zavolá callback `onRate(hodnota)`. 
- */
-
 const OPTIONS = [
   { value: 1, label: "Neumím", icon: FiXCircle },
   { value: 2, label: "Téměř", icon: FiMinusCircle },

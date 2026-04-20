@@ -1,14 +1,12 @@
 import { useState } from "react";
 import ConfidenceInput from "./ConfidenceInput";
 
-// Mapování hodnot na barvy a popisky
 const RATING_META = {
   1: { label: "Neumím", cssClass: "rating-wrong" },
   2: { label: "Téměř",  cssClass: "rating-almost" },
   3: { label: "Umím",   cssClass: "rating-correct" },
 };
 
-// Spočítá statistiky z aktuálního sezení
 function computeSessionStats(ratings, totalCards) {
   const counts = { 1: 0, 2: 0, 3: 0 };
   ratings.forEach((r) => {
@@ -25,15 +23,8 @@ function computeSessionStats(ratings, totalCards) {
   return { counts, average, successPercent, successCount };
 }
 
-/**
- * Komponenta FlashcardViewer
- * – zobrazuje otázku i odpověď najednou.
- * – uživatel hodnotí 3 tlačítky: Neumím / Téměř / Umím.
- * – po dokončení zobrazí statistiky + přehled všech otázek.
- */
 function FlashcardViewer({ cards, deckFileName, onBack }) {
   const [index, setIndex] = useState(0);
-  // Hodnocení z aktuálního sezení – pole objektů { cardIndex, value }
   const [sessionRatings, setSessionRatings] = useState([]);
   const [showAnswer, setShowAnswer] = useState(false);
   const finished = index >= cards.length;
@@ -44,7 +35,6 @@ function FlashcardViewer({ cards, deckFileName, onBack }) {
     setIndex((prev) => prev + 1);
   };
 
-  // Prázdný balíček
   if (cards.length === 0) {
     return (
       <div className="viewer">
@@ -57,7 +47,6 @@ function FlashcardViewer({ cards, deckFileName, onBack }) {
     );
   }
 
-  // Hotovo – statistiky + přehled otázek
   if (finished) {
     const ratingValues = sessionRatings.map((r) => r.value);
     const stats = computeSessionStats(ratingValues, cards.length);
