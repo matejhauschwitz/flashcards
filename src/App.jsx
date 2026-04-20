@@ -197,8 +197,7 @@ function App() {
       {/* Horní lišta s pozdravem, motivem a odhlášením */}
       <header className="topbar">
         <span className="topbar-greeting">
-          <FiSmile aria-hidden="true" />
-          <span>Ahoj, <strong>{user}</strong></span>
+          <span><strong>{user}</strong></span>
         </span>
         <div className="topbar-actions">
           <button className="btn-small theme-toggle" onClick={toggleTheme} aria-label="Přepnout motiv">
