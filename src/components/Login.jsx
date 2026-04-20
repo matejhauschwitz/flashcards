@@ -22,7 +22,6 @@ function Login({ onLogin }) {
         <FiBookOpen aria-hidden="true" />
         <span>Flashcards</span>
       </h1>
-      <p className="subtitle">Quizlet pro chudé</p>
 
       <form onSubmit={handleSubmit}>
         <input
